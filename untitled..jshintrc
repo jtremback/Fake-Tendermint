@@ -1,0 +1,421 @@
+{
+	　"_id": "19033fad-fb08-47fd-bd4f-17da5e651402",
+	　"Name": "Asset Class",
+	　"UserId": "1923e567-c508-4f32-84ff-b50aa5a6d09d",
+	　"IsGlobal": true,
+	　"nVersion": 1,
+	　"Branches": [
+	　{
+		　　　"Name": null,
+			　　　"Filter": {
+				　　　　"schemaVersion": "1.0",
+				　　　　"nVersion": 0,
+				　　　　"_id": "859e6348-7126-44e7-9d4d-3180c47925e7",
+				　　　　"IsGlobal": false,
+				　　　　"controlActions": [],
+				　　　　"AND": {
+					　　　　　"Terms": [
+					　　　　　{
+						　　　　　　　"RunConditionMandatory": true,
+							　　　　　　　"RunCondition": "true",
+							　　　　　　　"FieldTag": null,
+							　　　　　　　"LHS": "Security/AssetType/Name",
+							　　　　　　　"Operator": "NotEqual",
+							　　　　　　　"RHS": "Equity",
+							　　　　　　　"Type": "String"
+						　　　　　　}
+						　　　　　　]
+					　　　　}
+				　　　　},
+				　　　"GroupColumns": [
+			　　　{
+				　　　　　"GroupOrder": 1,
+					　　　　　"FieldTag": "Security/AssetType/Name"
+					　　　　　},
+					　　　　{
+					　　　　　"FieldTag": "Security/SecurityTypeGroupCurrency/Name",
+					　　　　　"GroupOrder": 2
+					　　　　　},
+					　　　　{
+					　　　　　"FieldTag": "Security/SecurityCode",
+					　　　　　"GroupOrder": 3
+				　　　　}
+				　　　　]
+				　　　},
+			　　{
+			　　　"Name": "Branch A",
+			　　　"Filter": {
+				　　　　"schemaVersion": "1.0",
+				　　　　"nVersion": 0,
+				　　　　"_id": "97f439f4-7fab-42a5-98ad-1f0dbcab4ee1",
+				　　　　"IsGlobal": false,
+				　　　　"controlActions": [],
+				　　　　"AND": {
+					　　　　　"Terms": [
+					　　　　　{
+						　　　　　　　"RunConditionMandatory": true,
+							　　　　　　　"RunCondition": "true",
+							　　　　　　　"FieldTag": null,
+							　　　　　　　"LHS": "Security/AssetType/Name",
+							　　　　　　　"Operator": "Equal",
+							　　　　　　　"RHS": "Equity",
+							　　　　　　　"Type": "String"
+						　　　　　　}
+						　　　　　　]
+					　　　　}
+				　　　　},
+				　　　"GroupColumns": [
+			　　　{
+				　　　　　"GroupOrder": 1,
+					　　　　　"FieldTag": "Security/AssetType/Name"
+					　　　　　},
+					　　　　{
+					　　　　　"FieldTag": "Security/IndustrySector/Name",
+					　　　　　"GroupOrder": 2
+					　　　　　},
+					　　　　{
+					　　　　　"FieldTag": "Security/IndustryGroup/Name",
+					　　　　　"GroupOrder": 3
+					　　　　　},
+					　　　　{
+					　　　　　"FieldTag": "Security/SecurityCode",
+					　　　　　"GroupOrder": 4
+				　　　　}
+				　　　　]
+			　　}
+		　　]
+}
+
+
+
+
+
+
+{
+	　"_id": "19033fad-fb08-47fd-bd4f-17da5e651402",
+	　"Name": "Asset Class",
+	　"UserId": "1923e567-c508-4f32-84ff-b50aa5a6d09d",
+	　"IsGlobal": true,
+	　"nVersion": 1,
+	　"Branches": [
+	　　{
+			　　　"Name": null,
+			　　　"GroupColumns": [
+			　　　　{
+					　　　　　"FieldTag": "Security/SecurityCode",
+					　　　　　"GroupOrder": 1
+				　　　　}
+				　　　],
+			　　　"Branches": [
+			　　　　{
+					　　　　　"Name": null,
+					　　　　　"Filter": {
+						　　　　　　"schemaVersion": "1.0",
+						　　　　　　"nVersion": 0,
+						　　　　　　"_id": "859e6348-7126-44e7-9d4d-3180c47925e7",
+						　　　　　　"IsGlobal": false,
+						　　　　　　"controlActions": [],
+						　　　　　　"AND": {
+							　　　　　　　"Terms": [
+							　　　　　　　　{
+									　　　　　　　　　"RunConditionMandatory": true,
+									　　　　　　　　　"RunCondition": "true",
+									　　　　　　　　　"FieldTag": null,
+									　　　　　　　　　"LHS": "Security/AssetType/Name",
+									　　　　　　　　　"Operator": "NotEqual",
+									　　　　　　　　　"RHS": "Equity",
+									　　　　　　　　　"Type": "String"
+								　　　　　　　　}
+								　　　　　　　]
+						　　　　　　}
+						　　　　　},
+					　　　　　"GroupColumns": [
+					　　　　　　{
+							　　　　　　　"GroupOrder": 1,
+							　　　　　　　"FieldTag": "Security/AssetType/Name"
+							　　　　　　},
+						　　　　　　{
+							　　　　　　　"FieldTag": "Security/SecurityTypeGroupCurrency/Name",
+							　　　　　　　"GroupOrder": 2
+							　　　　　　},
+						　　　　　　{
+							　　　　　　　"FieldTag": "Security/SecurityCode",
+							　　　　　　　"GroupOrder": 3
+						　　　　　　}
+						　　　　　]
+					　　　　},
+				　　　　{
+					　　　　　"Name": "Branch A",
+					　　　　　"Filter": {
+						　　　　　　"schemaVersion": "1.0",
+						　　　　　　"nVersion": 0,
+						　　　　　　"_id": "97f439f4-7fab-42a5-98ad-1f0dbcab4ee1",
+						　　　　　　"IsGlobal": false,
+						　　　　　　"controlActions": [],
+						　　　　　　"AND": {
+							　　　　　　　"Terms": [
+							　　　　　　　　{
+									　　　　　　　　　"RunConditionMandatory": true,
+									　　　　　　　　　"RunCondition": "true",
+									　　　　　　　　　"FieldTag": null,
+									　　　　　　　　　"LHS": "Security/AssetType/Name",
+									　　　　　　　　　"Operator": "Equal",
+									　　　　　　　　　"RHS": "Equity",
+									　　　　　　　　　"Type": "String"
+								　　　　　　　　}
+								　　　　　　　]
+						　　　　　　}
+						　　　　　},
+					　　　　　"GroupColumns": [
+					　　　　　　{
+							　　　　　　　"GroupOrder": 1,
+							　　　　　　　"FieldTag": "Security/AssetType/Name"
+							　　　　　　},
+						　　　　　　{
+							　　　　　　　"FieldTag": "Security/IndustrySector/Name",
+							　　　　　　　"GroupOrder": 2
+							　　　　　　},
+						　　　　　　{
+							　　　　　　　"FieldTag": "Security/IndustryGroup/Name",
+							　　　　　　　"GroupOrder": 3
+						　　　　　　}
+						　　　　　]
+				　　　　}
+				　　　]
+		　　}
+		　]
+}
+
+
+
+{
+	"_id": "6d85b614-5a02-43cf-8ea9-66c87d43d5e4",
+	"Name": "Country",
+	"UserId": "1923e567-c508-4f32-84ff-b50aa5a6d09d",
+	"IsGlobal": true,
+	"nVersion": 1,
+	"Branches": [
+		{
+			"GroupColumns": [
+				{
+					"GroupOrder": 1,
+					"FieldTag": "Security/RiskCountry/Name"
+				},
+				{
+					"FieldTag": "Security/AssetType/Name",
+					"GroupOrder": 2
+				},
+				{
+					"FieldTag": "Security/SecurityTypeGroupCurrency/Name",
+					"GroupOrder": 3
+				},
+				{
+					"FieldTag": "Security/SecurityCode",
+					"GroupOrder": 4
+				}
+			]
+		}
+	]
+}
+
+
+
+{
+	"_id": "6d85b614-5a02-43cf-8ea9-66c87d43d5e4",
+	"Name": "Country",
+	"UserId": "1923e567-c508-4f32-84ff-b50aa5a6d09d",
+	"IsGlobal": true,
+	"nVersion": 1,
+	"Branches": [
+		{
+			"Name": null,
+			"Filter": {
+				"AND": {
+					"Terms": [
+						{
+							"LHS": "Security/RiskCountry/Name",
+							"Operator": "NotEqual",
+							"RHS": "Equity"
+						}
+					]
+				}
+			},
+			"GroupColumns": [
+				{
+					"FieldTag": "Security/RiskCountry/Name",
+					"GroupOrder": 1
+				},
+				{
+					"FieldTag": "Security/AssetType/Name",
+					"GroupOrder": 2
+				},
+				{
+					"FieldTag": "Security/SecurityTypeGroupCurrency/Name",
+					"GroupOrder": 3
+				},
+				{
+					"FieldTag": "Security/SecurityCode",
+					"GroupOrder": 4
+				}
+			]
+		},
+		{
+			"Name": "Branch A",
+			"Filter": {
+				"AND": {
+					"Terms": [
+						{
+							"LHS": "Security/RiskCountry/Name",
+							"Operator": "Equal",
+							"RHS": "Equity"
+						}
+					]
+				}
+			},
+			"GroupColumns": [
+				{
+					"FieldTag": "Security/RiskCountry/Name",
+					"GroupOrder": 1
+				}
+			]
+		}
+	]
+}
+
+
+
+{
+	"_id": "6d85b614-5a02-43cf-8ea9-66c87d43d5e4",
+	"Name": "Country",
+	"UserId": "1923e567-c508-4f32-84ff-b50aa5a6d09d",
+	"IsGlobal": true,
+	"nVersion": 1,
+	"Branches": [
+		{
+			"Name": null,
+			"GroupColumns": [
+				{
+					"GroupOrder": 1,
+					"FieldTag": "Security/RiskCountry/Name"
+				}
+			],
+			"Branches": [
+				{
+					"Filter": {
+						"AND": {
+							"Terms": [
+								{
+									"LHS": "Security/AssetType/Name",
+									"Operator": "NotEqual",
+									"RHS": "Equity"
+								}
+							]
+						}
+					},
+					"GroupColumns": [
+						{
+							"FieldTag": "Security/AssetType/Name",
+							"GroupOrder": 2
+						},
+						{
+							"FieldTag": "Security/SecurityTypeGroupCurrency/Name",
+							"GroupOrder": 3
+						},
+						{
+							"FieldTag": "Security/SecurityCode",
+							"GroupOrder": 4
+						}
+					]
+				},
+				{
+					"Filter": {
+						"AND": {
+							"Terms": [
+								{
+									"LHS": "Security/AssetType/Name",
+									"Operator": "Equal",
+									"RHS": "Equity"
+								}
+							]
+						}
+					},
+					"GroupColumns": [
+						{
+							"FieldTag": "Security/AssetType/Name",
+							"GroupOrder": 2
+						}
+					]
+				}
+			]
+		}
+	]
+}
+
+
+
+{
+	"_id": "6d85b614-5a02-43cf-8ea9-66c87d43d5e4",
+	"Name": "Country",
+	"UserId": "1923e567-c508-4f32-84ff-b50aa5a6d09d",
+	"IsGlobal": true,
+	"nVersion": 1,
+	"Branches": [
+		{
+			"Name": null,
+			"GroupColumns": [
+				{
+					"GroupOrder": 1,
+					"FieldTag": "Security/RiskCountry/Name"
+				},
+				{
+					"FieldTag": "Security/AssetType/Name",
+					"GroupOrder": 2
+				}
+			],
+			"Branches": [
+				{
+					"Filter": {
+						"AND": {
+							"Terms": [
+								{
+									"LHS": "Security/SecurityTypeGroupCurrency/Name",
+									"Operator": "NotEqual",
+									"RHS": "Equity"
+								}
+							]
+						}
+					},
+					"GroupColumns": [
+						{
+							"FieldTag": "Security/SecurityTypeGroupCurrency/Name",
+							"GroupOrder": 3
+						},
+						{
+							"FieldTag": "Security/SecurityCode",
+							"GroupOrder": 4
+						}
+					]
+				},
+				{
+					"Filter": {
+						"AND": {
+							"Terms": [
+								{
+									"LHS": "Security/SecurityTypeGroupCurrency/Name",
+									"Operator": "Equal",
+									"RHS": "Equity"
+								}
+							]
+						}
+					},
+					"GroupColumns": [
+						{
+							"FieldTag": "Security/SecurityTypeGroupCurrency/Name",
+							"GroupOrder": 2
+						}
+					]
+				}
+			]
+		}
+	]
+}

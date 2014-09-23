@@ -1,0 +1,836 @@
+Jehan Tremback
+hey man, working on these diagrams
+what exactly is sent in the gossip
+
+
+Jae Kwon
+both block parts and votes are gossiped.
+
+and there are 3 kinds of votes.
+a bare vote (maybe a better name for it?), a precommit, and a commit.
+the votes are simply height+round+hash+signature
+(and type byte of course)
+the block parts are 4kb chunks, each signed by the proposer.
+height+part_index+part_bytes+signature.
+
+
+Jehan Tremback
+height is just the number of blocks right
+
+and whats in part_bytes?
+thats the actual transactions?
+ok, so lets get rid of the 256-way split
+would it then be height+block+sig?
+
+
+Jae Kwon
+first block in teh blockchain is height 0, etc.
+
+part_bytes, are just chunks of the proposed block. So, the first block part has the first 4K bytes of the block, the second block part has the second 4K bytes of the block part…. it's similar to BitTorrent
+
+
+Jehan Tremback
+ok, so i'm just going to have them gossip height+block+sig then
+
+ok well the gossip part is easy then
+actually i can also get rid of the sig
+
+
+i'll send a jsbin in a whileJae Kwon
+
+technically you need the sig, since that's the only way each validator knows that it was proposed by the designated
+proposer.
+you can get rid of the block parts scheme and just say, in reality we use a BitTorrent-like scheme to speed up propagation.
+or just omit that entirely
+
+
+Jehan Tremback
+oh this is to write my visualization
+
+in the explanation i will mention these things
+
+
+Jae Kwon
+cool!
+
+Awesome.  I'll be here coding.
+
+
+Jehan Tremback
+gonna write a simple simulation of a node and then use a data binding framework for the visuals
+
+easier than like choreographing a bunch of shit
+
+
+Jae Kwon
+oh it'll animate?
+
+
+
+Jehan Tremback
+maybe
+
+
+
+Jae Kwon
+that's an interesting idea
+
+sounds fun
+
+
+Jehan Tremback
+ok, so for votes... gossipi continues until each node has the votes of all the others?
+
+
+
+Jae Kwon
+each node only gossips votes for as long as that vote is relevant to it and its peers.
+
+nodes communicate to peers what height+round it's in, so each node has a (slightly delayed) idea of what height+round+step a peer is in.
+based on that, a node decides what to give a peer.
+when a round is over, it forgets all the votes for that round, and also stops gossiping votes for that past round.
+unless the vote is a commit vote. commit votes are always gossipped.
+for as long as the node and the peer are both on the relevant height.
+(regardless of which round they're at)
+
+
+Jehan Tremback
+does a node ever make descisions about what to gossip?
+
+
+
+or does it all just pass straight thru?Jae Kwon
+
+It does make decisions.  So, before it gossips a vote or block part, it makes sure that it's valid.  e.g. signed by the
+correct proposer, or signed by a real validator.
+
+
+Jehan Tremback
+oh ok cool
+
+
+
+Jae Kwon
+And it makes a decision about the node's local height+round state, and also the peer's likely height+round state.
+
+
+
+Jehan Tremback
+what is that decision?
+
+
+Jae Kwon
+
+Each vote comes with the height & round & signature & validator id, so the node first makes sure that the height &
+round matches its local height & round, and also the destination peer's height & round.
+
+
+Jehan Tremback
+oh huh, so it is keeping track of the state of its peers?
+
+
+
+Jae Kwon
+yeah
+
+
+
+Jehan Tremback
+when does this messaging happen?
+
+
+
+Jae Kwon
+when the round starts for a node, it first broadcasts a new round state message.  height & round.
+
+oops
+no, you don't need the round, all you need is a message saying height & round0 just started.  Then you note the time.  From the estimated start time of round0, you can derive the start time of all the future rounds.
+
+
+Jehan Tremback
+ok so how does that interact with the thing where rounds can get out of sync and its ok
+
+
+
+Jae Kwon
+there will be latency in simply transmitting this message, but let's ignore that for a bit.
+
+if i'm at height 10 round 4, and my peer's at height 9, then well, i don't gossip anything to that peer.
+I wait until the peer tells me that he's at height 10 round X.
+Then based on X, i know roughly when height 10 round 0 started for that peer, and i can estimate when all future rounds start for height 10.
+Since the rounds are progressively longer, at some point we'll all be on the same round.
+(as long as the clocks are reasonably accurate for the duration of consensus for that height).
+There's a diagram to explain this.
+Draw a horizontal bar with segments representing rounds.
+
+
+Jehan Tremback
+yea it sounds like i can leave it out
+
+but keep going
+
+
+maybe for a different visualizationJae Kwon
+
+And make each successive segment longer by a fixed duration of time, so it looks kinda like
+===|=====|=======|=========|…
+And lay out a couple of those bars horizontally, representing each node, starting at different times.
+You'll see that at some point, the rounds will align enough.
+
+
+Jehan Tremback
+as the round becomes larger than the time difference?
+
+
+
+Jae Kwon
+*lay out a couple of those bars vertically
+
+yeah
+And assuming some fixed reasonable latency (it's unknown, but fixed), even with unknown latency you know that eventually the rounds will align enough.
+
+
+Jehan Tremback
+what is the round time?
+
+
+
+Jae Kwon
+Currently it's baked in at 60 seconds, and each subsequent round is 15 seconds longer than the last.
+
+
+
+Jehan Tremback
+wait huh? globally?
+
+oh lol it resets per block
+
+
+Jae Kwon
+yeah haha
+
+
+
+Jehan Tremback
+ok so whats the block time?
+
+
+
+Jae Kwon
+When does it reset?
+
+
+
+Jehan Tremback
+is it just whenever consensus is reached?
+
+
+
+Jae Kwon
+It resets for each node, as soon as the node sees 2/3 or more in commits for that block.
+
+
+
+Jehan Tremback
+can you tune it in any way?
+
+
+
+Jae Kwon
+The tuning needs to be such that it can heal drifts in clocks.
+
+And I believe that this is a good way to do it.
+Even if different nodes commit at different rounds,
+by waiting for 2/3 or more in commits, nodes will likely commit close to each other in global time.
+(as good as the gossip network can allow anyways)
+It's not exactly what's in the DLS paper (there is a separate algorithm in the DLS paper to synchronize drifting clocks), so this is a modification, or an optimization if you will.
+
+
+Jehan Tremback
+so in a well functioning network, most people just precommit once and then vote next round?
+
+and the slow 1/3 precommit and commit in the same round?
+
+
+Jae Kwon
+if it's really well functioning, you only need 1 round.
+
+everybody precommits, and everybody commits. done.
+if 1/3 or more  are slow to precommit, say,
+that means nobody has committed yet, but a bunch are locked into one proposal...
+the next round, most will vote for that block, then they'll hopefully all precommit again, and then commit.
+once you commit, that's gossiped, and the commit acts as if the node voted+prevoted for that proposal.
+for all future rounds.
+
+
+Jehan Tremback
+so i have an internal model of connected nodes in each node
+
+i record the time it started the current block
+and its current commit
+thats it right?
+
+
+Jae Kwon
+you record the time it started the current block height, yeah. that's for each peer.
+
+you also record the commit from each *validator*.  A peer is not necessarily a validator.
+
+
+Jehan Tremback
+gonna make em all validators for now if thats ok
+
+
+
+Jae Kwon
+ok np.
+
+then, you're not necessarily connected to all validators.
+
+
+Jehan Tremback
+unless there is an important point to be made about non validators
+
+
+
+Jae Kwon
+so you don't need to remember the startTime of all validators. just the peers.
+
+*just the immediate peers.
+but you do need to remember the commits from all validators.
+
+
+Jehan Tremback
+yea, I've got references to them in a peers array, so i'll just add some metadata
+
+
+
+Jae Kwon
+kk
+
+
+
+Jehan Tremback
+and theres an uncommit message too right?
+
+
+
+Jae Kwon
+no
+
+you mean an unprecommit message? no
+once you commit, unless SHTF, there's no need to uncommit ever.
+you might need to unlock, but that doesn't result in an unprecommit message.
+
+
+Jehan Tremback
+i have some stuff about unlock
+
+oh howso?
+
+
+Jae Kwon
+well if you need to unlock, that means you saw > 1/3 precommit for something else.
+
+which means at least one good validator saw > 2/3 in votes for something else.
+which means you can just forget what you locked. no need to tell everyone that you're an ugly duckling.
+just get pretty.
+
+
+Jehan Tremback
+woah harsh
+
+jk
+
+
+Jae Kwon
+yeah ok that's not a PC way to say it. i need better words.
+
+
+
+Jehan Tremback
+ok, can you go over step 1 from the diagram again?
+
+i wrote down:
+if locked vote for proposal locked on. if none is good, vote null
+so unlocking would just result in a null vote next round?
+
+
+Jae Kwon
+one thing is missing...
+
+if locked { vote for locked } else { if proposal is good { vote for it } else { vote nil } }
+so if you unlocked, the next round you would either vote for a good proposal or vote nil.
+
+
+Jehan Tremback
+ok, so we have block proposals, votes, pre-commits, and commits?
+
+as types of messages
+
+
+and "good" means "matches my blockchain"?Jae Kwon
+
+yeah, the proposal is valid, and I tried executing the txs in the block from my last state at height h-1, and all those
+txs passed.
+err, that's an implementation detail. basically, it means everything is valid.
+
+
+Jehan Tremback
+meaning people had enough money
+
+
+
+Jae Kwon
+yeah, all that.
+
+
+
+Jehan Tremback
+ok, so this presupposes that each validator has all transactions
+
+those are also transmitted by gossip?
+what if i dont get em all before the voting starts?
+
+
+Jae Kwon
+the transactions are in the block, so if you received the full block, you can vote for it if it's good.
+
+if you don't receive the full block in time for you to vote/precommit it, then you have to vote nil, and you can't precommit anything.
+if you voted nil because you didn't have the full block, but you received it in time to precommit it (since you also happened to see > 2/3 vote for it), then you can go ahead and precommit it.
+but that's detail.
+
+
+Jehan Tremback
+what about the transactions though
+
+
+
+Jae Kwon
+like before they go into any block or proposal?
+
+
+
+Jehan Tremback
+so validation is matching the proposed block state to my view of the network right?
+
+so when did i acquire my view of the network
+
+
+Jae Kwon
+* to your view of the blockchain.
+
+
+
+Jehan Tremback
+yea blockchain
+
+
+
+Jae Kwon
+so when did you acquire your view of the blockchain?
+
+e.g. all the blocks until h-1?
+
+
+Jehan Tremback
+i guess yea
+
+the transaction gossip is going on while the round is in progress and is used next round?
+
+
+Jae Kwon
+well, that happens in another channel.
+
+yeah. so there are other things happening simultaneously, besides consensus.
+there's old blockchain syncing for newcomers,
+
+
+Jehan Tremback
+lotsa shit going on
+
+
+
+Jae Kwon
+there's also mempool tx gossiping for tx's that haven't been committed yet.
+
+yup.
+there's also peer exchange going on, PEX for short.
+sharing peer addresses and junk.
+
+
+Jehan Tremback
+ok well i think that transaction gossip is important to include in the visualization
+
+as people will wonder
+the other stuff is housekeeping
+
+
+Jae Kwon
+mmm the tx gossiping is a simple impl right now.
+
+
+
+Jehan Tremback
+huh cool
+
+
+
+Jae Kwon
+it just does a simple and stupid flooding.
+
+
+
+Jehan Tremback
+well im going to make a tx gossiping network with no validation to start out
+
+
+
+oh does the node ever make a decision about which txs to gossip?
+
+Jae Kwon
+
+when i receive a tx, i see if it fits into the current forked state.  That is, given the state after the last committed
+block, i mutate the state as i see new tx's coming in.  If it fits, i share it with everyone else.
+that way i only communicate tx's that are valid to me.
+that mutated state is of course just temporary and will likely be thrown away when i receive the next block to commit.
+
+
+Jehan Tremback
+so, you check peoples balance when transactions come in and dont retransmit the transaction of people who are broke?
+
+
+
+Jae Kwon
+yup.
+
+
+
+Jehan Tremback
+thats not really a key part of the security is it
+
+more of a ddos prevention?
+
+
+Jae Kwon
+yeah.
+
+and there's likely going to be more measures put in in the future to prevent ddos.
+but no need to do that right now.
+i bet there's only a handful of people who understand DLS.
+
+
+Jehan Tremback
+ok, so decisions about tx gossip dont need to be in the visuals
+
+do the decisions about vote and commit gossip need to be in the visuals?
+
+
+i think so, seems more keyJae Kwon
+
+i think it would be difficult to visualize the actual vote/commit logic. so maybe just a visual of a gossip network, so
+people realize that it's built to be open like bitcoin?
+i dunno, your call.
+i'm not sure how it would be done.
+
+
+Jehan Tremback
+ok let me rephrase that
+
+is the decision about whether to gossip a vote another anti ddos measure?
+
+
+Jae Kwon
+mmm not so much ddos, since only validators can do it and it's only one type of vote per validator per round.
+
+
+
+Jehan Tremback
+so its a key part of the consensus process?
+
+
+Jae Kwon
+
+but the decision about whether to gossip a vote, e.g. not resharing old round votes, is necessary to optimize bandwidth
+usage.
+i suppose some of that detail could be left out…
+it doesn't really help understand how the consensus mechanism works
+imma get some food
+brb
+
+
+Jehan Tremback
+cool
+
+
+
+Jehan Tremback
+ok wait... does the block chain contain balances?
+
+or just transactions
+
+
+Jae Kwon
+it contains transactions
+
+
+
+Jehan Tremback
+yea, figured
+
+
+
+Jae Kwon
+also happens to contain a merkle root of the state of balances, but that's just a single hash.
+
+
+
+Jehan Tremback
+what is it used for?
+
+
+
+Jae Kwon
+one, as a check to ensure that all implementations actually agree on the current state.
+
+
+Jae Kwon
+
+two, it'll maybe come in handy when people need to check for balances… e.g. a client phone app asks for the current
+balance of some address… it can check that the address & balance is included in the merkle root of the block, signed by some trusted validators. and thus know what the balance is without downloading the full blockchain.
+
+
+Jehan Tremback
+ok, so thats more of an optimization
+
+
+
+Jae Kwon
+yeah
+
+
+
+Jehan Tremback
+so, nobody is trying to agree on the order of transactions in a block right?
+
+
+
+Jae Kwon
+?
+
+if a validator votes for a block, it agrees with the order of those tx
+
+
+Jehan Tremback
+hmm
+
+doesn't the latency prevent perfect order?
+
+
+Jae Kwon
+oh, tx order from the mempool?
+
+yeah, impossible.
+but the proposer is enforcing an order when it creates a block.
+probably whatever order it saw.
+
+
+Jehan Tremback
+so arent other nodes going to disagree on that order?
+
+
+
+Jae Kwon
+ah yeah, they don't care about the order as long as the order is valid.
+
+you can't like, have a negative balance that becomes positive again, even in the same block.
+
+
+Jehan Tremback
+oh ok, so the nodes are more re-doing the proposers work, not comparing it to their state?
+
+
+
+Jae Kwon
+right.
+
+they kind of throw away their state once they commit a block.
+and start all over again, filtering txs from their mempool of txs that have been committed, and txs that have become invalid.
+
+
+Jehan Tremback
+so can't a proposer opportunistically cheat?
+
+by proposing a block that is valid but incorrect
+
+
+Jae Kwon
+how is a block valid but incorrect?
+
+
+
+Jehan Tremback
+transactions omitted
+
+
+Jae Kwon
+
+right. you can't enforce a particular validator to include transactions that it's seen. the single validator has some
+freedom there.
+
+
+but over the course of blocks, unless most of the validators are omitting txs, a tx will eventually get committed.Jehan Tremback
+
+so, what if they put false transactions in that never happened? are they comparing the proposed block to their observed
+
+
+block?Jae Kwon
+
+a transaction has to be signed by the account owner so i'm not sure what you mean by false… if you mean, a tx that
+hasn't been broadcasted to the global mempool network, then, that's fine.
+it'll just get included.
+the observed block is not compared to the proposed block
+
+
+Jehan Tremback
+oh yes the public keys
+
+cool
+so, who has what public keys?
+
+
+everyone has all of them?Jae Kwon
+
+in the basic implementation, i'm thinking that each account has to be created first before it's used.  so, create an
+account -> get a numeric id.  And each tx has a numeric id + signature.
+I know that Bitcoin is all about pseudonymity so they just include a pubkey in each tx.  whatever.
+(or the hash of the pubkey).
+but with a numeric id you save some bandwidth.  also we can make it more like bitcoin in the future.
+
+
+Jehan Tremback
+so, i have to check if a transaction in a proposed block is valid
+
+where do i get the pubkey to check the signature?
+
+
+Jae Kwon
+it's in the account state, which each node maintains as blocks get committed.
+
+so when you create an account, that's a kind of Tx.
+that Tx makes all the state merkle tree in all the nodes remember the numeric_id -> pubkey mapping.
+
+
+Jehan Tremback
+oh ok its part of the overall blockchain validation
+
+cool
+that all makes sense then, re-do the proposer's work which we know to be valid and forget what you saw last block
+so the storage of transactions is just in case you are called upon to propose?
+
+
+Jae Kwon
+yeah, and also to make sure that the tx's that you're propagating are valid.
+
+e.g. prevent some types of ddos
+
+
+Jehan Tremback
+oh ok yea, so there it doesn't have to be exact
+
+because it has more of a probabalistic effect on the transaction's transmission
+
+
+Jae Kwon
+if a user broadcasts two conflicting transactions, each node will only propagate one or the other.
+
+which one is a crapshoot
+
+
+Jehan Tremback
+basic framework: http://jsfiddle.net/0g0c49ph/6/
+
+just transaction gossip right now, and no block cycle
+
+
+Jae Kwon
+you gonna implement it in js?
+
+
+
+Jehan Tremback
+not really
+
+
+
+SundayJehan Tremback
+
+so, proposer choice is deterministic, so every node figures it out and then doesn't accept proposals from the wrong
+node? At what stage in the round cycle does this happen?
+is there a special between-block event?
+
+
+Jehan Tremback
+I'm going to go with doing it once a block is comitted
+
+
+
+Jehan Tremback
+nvm
+
+
+
+Jehan Tremback
+I just read your whitepaper and now i know.
+
+next question: if a proposer omits a transaction, how exactly does it get included by the next proposer?
+Monday
+
+
+
+Monday
+
+
+Jehan Tremback
+yo
+
+irc not working well on this wifi
+got qs
+so, how is the round time split up between each step?
+
+
+Jehan Tremback
+enquiring minds must know
+
+
+
+Jae Kwon
+yo
+
+
+
+into thirds. so after 33% of time has passed for the round, you have to vote.Jae Kwon
+
+after 67%, you precommit. after 100%, you commit or unlock.  Commits are gossiped the whole time for all rounds, so as
+soon as you see +2/3 commits, you set the timer for round 0 at H+1 to begin.
+Oh and if you're the validator, you begin broadcasting your proposal at 0%, which is the same as saying 100% of the previous round, for rounds greater than 1.
+Today
+Jehan Tremback
+6:18am
+Jehan Tremback
+ok, cool, so is there any division of the time that you are able to receive these different types of votes?
+or can any of the votes be received at any time and factor into my final count?
+Jehan Tremback
+6:26am
+Jehan Tremback
+ok, I'm going to remember votes for the whole round and tally them up at those time points
+oh hmm
+Any messages to be broadcasted are sent in the
+beginning of the step, and messages can be received in the background during the
+entire duration of the step.
+so i can only see pre commit votes on the gossip network when I am in the precommit step myself?
+Today
+Jae Kwon
+1:02pm
+Jae Kwon
+that's a good question. there are several ways to do it, but I'm
